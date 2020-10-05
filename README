@@ -1,3 +1,8 @@
+## ABOUT THIS CODE
+
+This is a small implementation of the equations in Breton & de la Torre (2020) to analytically compute random-random pair counts for galaxy clustering analysis.
+
+
 ## COMPILE
 
 make
