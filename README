@@ -5,9 +5,8 @@ This is a small implementation of the equations in Breton & de la Torre (2020) t
 
 ## COMPILE
 
-make
-
-Needs the path to GSL and CUBA libraries in the Makefile
+A Make file is provided.
+Needs to add the paths to GSL and CUBA libraries.
 
 ## RUN CODE
 
