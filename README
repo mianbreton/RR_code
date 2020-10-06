@@ -10,7 +10,7 @@ Needs to add the paths to GSL and CUBA libraries.
 
 ## RUN CODE
 
-./compute_RR param.txt
+./compute_RR param_RR.txt
 
 ## IN PARAMETER FILE
 
