@@ -16,7 +16,7 @@ Needs to add the paths to GSL and CUBA libraries.
 
 - nrfile1
 First n(r) file, an ascii file with two row : r, n(r)
-n(r) is not necessarily normalised. However the limits of r MUST ABSOLUTELY match the one of the survey.
+n(r) should not necessarily be normalised. However the limits of r MUST ABSOLUTELY match the one of the survey.
 
 - nrfile2
 Second n(r) file. For auto-correlation this is the same as -nrfile1
