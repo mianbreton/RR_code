@@ -36,7 +36,7 @@ This is <W> used in Eq. (5) in Breton & de la Torre (2020)
 In the DR case we need the average of the galaxy counts map.
 
 - W0_2
-Same as W0_1, but for the random part.
+Same as W0_1, but for the second random part (or just the random if DR counts).
 
 - W1W2
 This is the average of the W1 x W2 maps. The resul is used to set the angular correlation function at w(0).
