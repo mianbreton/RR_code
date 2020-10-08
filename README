@@ -63,7 +63,8 @@ Integration type, must be "gsl" for gsl integrations (using cquad), "vegas", "su
 for the associated integration functions from the CUBA library
 
 - eps_rel
-Relative error associated with the integrations above (note that for gsl, this will be the error on each integrals, while for CUBA integration this is the final error on the full integration).
+Relative error associated with the integrations above (note that for gsl, this will be the error on each integrals, 
+while for CUBA integration this is the final error on the full integration).
 
 - output_base
 This is the base for the output name, which is automatically completed with "angle", "integration" and "eps_rel".
@@ -73,7 +74,8 @@ This is the base for the output name, which is automatically completed with "ang
 Ascii files, 
 For RR(s,mu) we have with six columns : smin, smax, mu_min, mu_max, RR (mu < 0), RR (mu > 0)
 For RR multipoles we have eleven columns : smin, smax, R_0, R_1, R_2, R_3, R_4, R_5, R_6, R_7, R_8 
-The RR are normalised so that the total number of randoms in the sample is 1 (to compare to the RR from pair-counting one must therefore multiply the RR by N² with N the number of objects in the sample)
+The RR are normalised so that the total number of randoms in the sample is 1 
+(to compare to the RR from pair-counting one must therefore multiply the RR by N² with N the number of objects in the sample)
 
 ## Citation
 
