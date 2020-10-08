@@ -39,7 +39,7 @@ In the DR case we need the average of the galaxy counts map.
 Same as W0_1, but for the second random part (or just the random if DR counts).
 
 - W1W2
-This is the average of the W1 x W2 maps. The resul is used to set the angular correlation function at w(0).
+This is the average of the W1 x W2 maps. The result is used to set the angular correlation function at w(0).
 
 - smin
 Minimum correlation scale, in Mpc/h
