@@ -31,7 +31,8 @@ Give the input format of -wfile. Must be 'standard' or 'polspice'. In both cases
 The w(theta) file for the angular correlation function of the angular survey weights, with the format given by -wformat
 
 - W0_1
-Average of the survey angular weights over the full sky (accounting for zeros in masked regions)
+Average of the survey angular weights over the full sky (accounting for zeros in masked regions).
+This is <W> used in Eq. (5) in Breton & de la Torre (2020)
 In the DR case we need the average of the galaxy counts map.
 
 - W0_2
