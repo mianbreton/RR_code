@@ -51,7 +51,7 @@ Maximum correlation scale, in Mpc/h
 Number of radial bins for the correlation function
 
 - nmu
-Number of angular bins for the correlation function
+Number of angular bins for the correlation function between 0 < µ < 1 (doubled since the code also computes the pairs with µ < 0)
 If nmu > 0 : Computes the RR counts for each (s, mu) bins with Eq.(12) of Breton & de la Torre (2020)
 Else : Compute the RR multipoles with Eq.(14)
 
