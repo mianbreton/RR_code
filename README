@@ -51,8 +51,8 @@ Number of radial bins for the correlation function
 
 - nmu
 Number of angular bins for the correlation function
-If nmu > 0 : Computes the RR counts for each (s, mu) bins with Eq.(13) of Breton & de la Torre (2020)
-Else : Compute the RR multipoles with Eq.(15)
+If nmu > 0 : Computes the RR counts for each (s, mu) bins with Eq.(12) of Breton & de la Torre (2020)
+Else : Compute the RR multipoles with Eq.(14)
 
 - angle
 Angle definition, must be "end" for end-point definition, or "mid" for mid-point definition
