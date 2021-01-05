@@ -51,9 +51,9 @@
 
 double rmin1, rmax1, rmin2, rmax2, smin, smax, W0_1, W0_2, W1W2, n0, epsrel;
 int ns, nmu, ncomp_mu, ncomp_legendre;
-char nrfile1[BUFSIZ], nrfile2[BUFSIZ], wformat[BUFSIZ], wfile[BUFSIZ], angle[BUFSIZ], integration[BUFSIZ], eps_rel[BUFSIZ], output_base[BUFSIZ];
-const size_t size_cquad = 300;								// workspace size for cquad
-const size_t size_qag = 100;								// workspace size for qag
+char dndrfile1[BUFSIZ], dndrfile2[BUFSIZ], wformat[BUFSIZ], wfile[BUFSIZ], angle[BUFSIZ], integration[BUFSIZ], eps_rel[BUFSIZ], output_base[BUFSIZ];
+const size_t size_cquad = 1000;								// workspace size for cquad
+const size_t size_qag = 500;								// workspace size for qag
 gsl_interp_accel *acc[5]; 				
 gsl_spline *spline[5];						//Use for interpolation
 struct my_f_params2 {double a; double b;}; 
@@ -145,26 +145,26 @@ double wtheta_iphi(double phi)
     else return 0;
 }
 
-double n1_tilde_ir(double r)
+double n1_ir(double r)
 {
     //if (r > rmin && r <= rmax)  return n0; // uniform   
     if (r > rmin1 && r <= rmax1)  return gsl_spline_eval (spline[1], r, acc[1]);
     else return 0;
 }
 
-double n1_ir(double r)
+double dndr1_ir(double r)
 {
     if (r > rmin1 && r <= rmax1)  return gsl_spline_eval (spline[2], r, acc[2]);
     else return 0;
 }
 
-double n2_tilde_ir(double r)
+double n2_ir(double r)
 {
     if (r > rmin2 && r <= rmax2)  return gsl_spline_eval (spline[3], r, acc[3]);
     else return 0;
 }
 
-double n2_ir(double r)
+double dndr2_ir(double r)
 {
     if (r > rmin2 && r <= rmax2)  return gsl_spline_eval (spline[4], r, acc[4]);
     else return 0;
@@ -256,7 +256,7 @@ static int Integrand(const int *ndim, const cubareal xx[], const int *ncomp, cub
     // Rescale integrand for all bounds from 0 to 1
     // Rescale r1
     double r1p = rmin1 + (rmax1 - rmin1)*r1;
-    double n1_tilde = n1_tilde_ir(r1p);
+    double n1 = n1_ir(r1p);
     double sp = ismin + (ismax - ismin)*s;
     // Now loop over (mu) bins
     double dmu = 1./nmu;
@@ -282,7 +282,7 @@ static int Integrand(const int *ndim, const cubareal xx[], const int *ncomp, cub
 	// Compute r2
         double r2 = r_2(r1p, sp, mup);
 	// Compute integrand
-        ff[2*j] = (rmax1-rmin1)*(ismax-ismin)*(mu_max-mu_min)*r1p*r1p*sp*sp*n1_tilde*n2_tilde_ir(r2)*wtheta_iphi(Phi(r1p, r2, sp));
+        ff[2*j] = (rmax1-rmin1)*(ismax-ismin)*(mu_max-mu_min)*r1p*r1p*sp*sp*n1*n2_ir(r2)*wtheta_iphi(Phi(r1p, r2, sp));
 
 	//// Negative pairs ////
 	imu_min = -imu_min;
@@ -302,7 +302,7 @@ static int Integrand(const int *ndim, const cubareal xx[], const int *ncomp, cub
 	// Compute r2
         r2 = r_2(r1p, sp, mup);
 	// Compute integrand
-        ff[2*j + 1] = (rmax1-rmin1)*(ismax-ismin)*(mu_max-mu_min)*r1p*r1p*sp*sp*n1_tilde*n2_tilde_ir(r2)*wtheta_iphi(Phi(r1p, r2, sp));
+        ff[2*j + 1] = (rmax1-rmin1)*(ismax-ismin)*(mu_max-mu_min)*r1p*r1p*sp*sp*n1*n2_ir(r2)*wtheta_iphi(Phi(r1p, r2, sp));
     }
     return 0;
 }
@@ -335,16 +335,16 @@ static int Integrand_legendre(const int *ndim, const cubareal xx[], const int *n
 	    printf("In parameter file, angle needs: 'mid' or 'end'\n");
         }
         double r2 = r_2(r1p, sp, mup);
-	double factor = (rmax1-rmin1)*(ismax-ismin)*2*r1p*r1p*sp*sp*n1_tilde_ir(r1p)*n2_tilde_ir(r2)*wtheta_iphi(Phi(r1p, r2, sp));
-        ff[9*i+0] = factor;
-        ff[9*i+1] = factor*legendre1(mup_star);
-        ff[9*i+2] = factor*legendre2(mup_star);
-        ff[9*i+3] = factor*legendre3(mup_star);
-        ff[9*i+4] = factor*legendre4(mup_star);
-        ff[9*i+5] = factor*legendre5(mup_star);
-        ff[9*i+6] = factor*legendre6(mup_star);
-        ff[9*i+7] = factor*legendre7(mup_star);
-        ff[9*i+8] = factor*legendre8(mup_star);
+	double factor = (rmax1-rmin1)*(ismax-ismin)*2*r1p*r1p*sp*sp*n1_ir(r1p)*n2_ir(r2)*wtheta_iphi(Phi(r1p, r2, sp));
+        ff[9*i+0] = 0.5*factor;
+        ff[9*i+1] = 1.5*factor*legendre1(mup_star);
+        ff[9*i+2] = 2.5*factor*legendre2(mup_star);
+        ff[9*i+3] = 3.5*factor*legendre3(mup_star);
+        ff[9*i+4] = 4.5*factor*legendre4(mup_star);
+        ff[9*i+5] = 5.5*factor*legendre5(mup_star);
+        ff[9*i+6] = 6.5*factor*legendre6(mup_star);
+        ff[9*i+7] = 7.5*factor*legendre7(mup_star);
+        ff[9*i+8] = 8.5*factor*legendre8(mup_star);
     }
     return 0;
 }
@@ -355,7 +355,7 @@ double fM(double mu, void *p){
     double r1 = (params->a);
     double s = (params->b);
     double r2 = r_2(r1, s, mu);
-    return n1_tilde_ir(r1)*n2_tilde_ir(r2)*wtheta_iphi(Phi(r1, r2, s));
+    return n1_ir(r1)*n2_ir(r2)*wtheta_iphi(Phi(r1, r2, s));
 }
 
 double M(double r, double s, double mu_min_tmp, double mu_max_tmp){
@@ -478,11 +478,11 @@ void RR_cuhre_legendre(cubareal* result){
 // Counts
 
 double fN1(double r, void *p){
-    return n1_ir(r);
+    return dndr1_ir(r);
     //return n0;
 }
 double fN2(double r, void *p){
-    return n2_ir(r);
+    return dndr2_ir(r);
     //return n0;
 }
 double N1(double rmin, double rmax){
@@ -568,54 +568,54 @@ void get_w_theta(char* file){
 
 }
 
-void get_nr(char* file1, char* file2){
+void get_dndr(char* file1, char* file2){
 
     FILE *f;
-    // n(r)_1
+    // dndr(r)_1
     int val = get_lines(file1);
-    double chi1[val], nr1[val], n_tilde1[val];
+    double chi1[val], dndr1[val], n1[val];
     f = fopen(file1, "r");
     for(int i=0; i < val; i++){
-	fscanf(f, "%lf %lf\n", &chi1[i], &nr1[i]);
+	fscanf(f, "%lf %lf\n", &chi1[i], &dndr1[i]);
     }
     rmin1 = chi1[0];
     rmax1 = chi1[val-1];
-    // Compute n_tilde
+    // Compute n(r)_1
     for(int i=0; i < val; i++){
-	n_tilde1[i] = nr1[i]/(4*M_PI*chi1[i]*chi1[i]*W0_1);
+	n1[i] = dndr1[i]/(4*M_PI*chi1[i]*chi1[i]*W0_1);
     }
     acc[1] = gsl_interp_accel_alloc ();
     spline[1] = gsl_spline_alloc(gsl_interp_cspline, val);
-    gsl_spline_init (spline[1], chi1, n_tilde1, val);
+    gsl_spline_init (spline[1], chi1, n1, val);
 
     acc[2] = gsl_interp_accel_alloc ();
     spline[2] = gsl_spline_alloc(gsl_interp_cspline, val);
-    gsl_spline_init (spline[2], chi1, nr1, val);
+    gsl_spline_init (spline[2], chi1, dndr1, val);
 
     fclose(f);
 
-    // n(r)_2
+    // dndr(r)_2
     val = get_lines(file2);
-    double chi2[val], nr2[val], n_tilde2[val];
+    double chi2[val], dndr2[val], n2[val];
     f = fopen(file2, "r");
     for(int i=0; i < val; i++){
-	fscanf(f, "%lf %lf\n", &chi2[i], &nr2[i]);
+	fscanf(f, "%lf %lf\n", &chi2[i], &dndr2[i]);
     }
 
-    // Compute n_tilde
+    // Compute n(r)_2
     for(int i=0; i < val; i++){
-	n_tilde2[i] = nr2[i]/(4*M_PI*chi2[i]*chi2[i]*W0_2);
+	n2[i] = dndr2[i]/(4*M_PI*chi2[i]*chi2[i]*W0_2);
     }
     rmin2 = chi2[0];
     rmax2 = chi2[val-1];
 
     acc[3] = gsl_interp_accel_alloc ();
     spline[3] = gsl_spline_alloc(gsl_interp_cspline, val);
-    gsl_spline_init (spline[3], chi2, n_tilde2, val);
+    gsl_spline_init (spline[3], chi2, n2, val);
 
     acc[4] = gsl_interp_accel_alloc ();
     spline[4] = gsl_spline_alloc(gsl_interp_cspline, val);
-    gsl_spline_init (spline[4], chi2, nr2, val);
+    gsl_spline_init (spline[4], chi2, dndr2, val);
 }
 
 void get_param(FILE* par)
@@ -628,8 +628,8 @@ void get_param(FILE* par)
     }
 
 // Read parameter file
-    fscanf(par,"%*s %s\n", nrfile1);
-    fscanf(par,"%*s %s\n", nrfile2);
+    fscanf(par,"%*s %s\n", dndrfile1);
+    fscanf(par,"%*s %s\n", dndrfile2);
     fscanf(par,"%*s %s\n", wformat);
     fscanf(par,"%*s %s\n", wfile);
     fscanf(par,"%*s %lf\n", &W0_1);
@@ -661,7 +661,7 @@ int main(int argc, char *argv[]){
     // Get mask correlation
     get_w_theta(wfile);
     // Get n(r), the n(r) must already be in the good range !!!!
-    get_nr(nrfile1, nrfile2);
+    get_dndr(dndrfile1, dndrfile2);
     // Some calculations
     double Nr = 1; // Normalise the RR
     double V0 = 4./3.*M_PI*(rmax1*rmax1*rmax1 - rmin1*rmin1*rmin1);

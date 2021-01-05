@@ -1,45 +1,40 @@
-## ABOUT THIS CODE
-
-This is a small implementation of the equations in Breton & de la Torre (2020) to analytically compute random-random pair counts for galaxy clustering analysis.
-
-
 ## COMPILE
 
-A Makefile is provided.
-Needs to add the paths to GSL and CUBA libraries.
+make
+
+Needs the path to GSL and CUBA libraries in the Makefile
 
 ## RUN CODE
 
-./compute_RR param_RR.txt
+./compute_RR param.txt
 
 ## IN PARAMETER FILE
 
-- nrfile1
-First n(r) file, an ascii file with two row : r, n(r)
-n(r) should not necessarily be normalised. However the limits of r MUST ABSOLUTELY match the one of the survey.
+- dndrfile1
+First dndr(r) [also called p(r) in Breton & de la Torre 2020] file, an ascii file with two row : r, dndr(r)
+dndr(r) is not necessarily normalised. However the limits of r MUST ABSOLUTELY match the one of the survey.
 
-- nrfile2
-Second n(r) file. For auto-correlation this is the same as -nrfile1
-The limits in r in nrfile2 are used as limits for the second random for cross-correlation (for most purposes, it should match the limits in nrfile1).
+- dndrfile2
+Second dndr(r) file. For auto-correlation this is the same as -dndrfile1
+The limits in r in dndrfile2 are used as limits for the second random for cross-correlation (for most purposes, it should match the limits in dndrfile1).
 
 -wformat
 Give the input format of -wfile. Must be 'standard' or 'polspice'. In both cases wfile is an ascii file.
 'standard', two columns: theta, w(theta)  ! theta must be in radians and increasing
-'polspice', must give the output correlation file from PolSpice code
+'polspice', three columns: theta, cos(theta), w(theta)  ! Warning, theta must be decreasing (start from pi and end with zero)
 
 - wfile
 The w(theta) file for the angular correlation function of the angular survey weights, with the format given by -wformat
 
 - W0_1
-Average of the survey angular weights over the full sky (accounting for zeros in masked regions).
-This is <W> used in Eq. (5) in Breton & de la Torre (2020)
+Average of the survey angular weights over the full sky (accounting for zeros in masked regions)
 In the DR case we need the average of the galaxy counts map.
 
 - W0_2
-Same as W0_1, but for the second random part (or just the random if DR counts).
+Same as W0_1, but for the random part.
 
 - W1W2
-This is the average of the W1 x W2 maps. The result is used to set the angular correlation function at w(0).
+This is the average of the W1 x W2 maps. The resul is used to set the angular correlation function at w(0).
 
 - smin
 Minimum correlation scale, in Mpc/h
@@ -51,7 +46,7 @@ Maximum correlation scale, in Mpc/h
 Number of radial bins for the correlation function
 
 - nmu
-Number of angular bins for the correlation function between 0 < µ < 1 (doubled since the code also computes the pairs with µ < 0)
+Number of angular bins for the correlation function
 If nmu > 0 : Computes the RR counts for each (s, mu) bins with Eq.(12) of Breton & de la Torre (2020)
 Else : Compute the RR multipoles with Eq.(14)
 
@@ -63,8 +58,7 @@ Integration type, must be "gsl" for gsl integrations (using cquad), "vegas", "su
 for the associated integration functions from the CUBA library
 
 - eps_rel
-Relative error associated with the integrations above (note that for gsl, this will be the error on each integrals, 
-while for CUBA integration this is the final error on the full integration).
+Relative error associated with the integrations above (note that for gsl, this will be the error on each integrals, while for CUBA integration this is the final error on the full integration).
 
 - output_base
 This is the base for the output name, which is automatically completed with "angle", "integration" and "eps_rel".
@@ -74,10 +68,9 @@ This is the base for the output name, which is automatically completed with "ang
 Ascii files, 
 For RR(s,mu) we have with six columns : smin, smax, mu_min, mu_max, RR (mu < 0), RR (mu > 0)
 For RR multipoles we have eleven columns : smin, smax, R_0, R_1, R_2, R_3, R_4, R_5, R_6, R_7, R_8 
-The RR are normalised so that the total number of randoms in the sample is 1 
-(to compare to the RR from pair-counting one must therefore multiply the RR by N² with N the number of objects in the sample)
+The RR are normalised so that the total number of randoms in the sample is 1 (to compare to the RR from pair-counting one must therefore multiply the RR by N² with N the number of objects in the sample)
 
 ## Citation
 
-If you use this code, please cite Breton & de la Torre (2020) [arXiv:2010.02793]
+If you use this code, please cite Breton & de la Torre (2020)
 

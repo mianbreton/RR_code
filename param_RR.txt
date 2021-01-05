@@ -1,5 +1,5 @@
-nrfile1 /dec/users/mabreton/RR_project/nr_galaxy_DR12v5_CMASS_North_spline_nbins100.txt
-nrfile2 /dec/users/mabreton/RR_project/nr_galaxy_DR12v5_CMASS_North_spline_nbins100.txt
+dndrfile1 /dec/users/mabreton/RR_project/n_r_distribution/nr_galaxy_DR12v5_CMASS_North_spline_nbins100.txt
+dndrfile2 /dec/users/mabreton/RR_project/n_r_distribution/nr_galaxy_DR12v5_CMASS_North_spline_nbins100.txt
 wformat polspice
 wfile /dec/users/mabreton/RR_project/masks/boss_map_nside8192.cor
 W0_1 0.177910790094
@@ -11,5 +11,5 @@ ns 30
 nmu 100
 angle mid
 integration cuhre
-eps_rel 1e-5
+eps_rel 1e-3
 output_base /dec/users/mabreton/RR_project/paircount_analytical/test
