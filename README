@@ -1,76 +1,81 @@
-## COMPILE
+## COMPILATION
 
-make
+First, need to set the path to GSL and CUBA libraries in the Makefile. Then run:
+> make
 
-Needs the path to GSL and CUBA libraries in the Makefile
+## TO RUN CODE
 
-## RUN CODE
+> ./compute_RR param.txt
 
-./compute_RR param.txt
-
-## IN PARAMETER FILE
+## PARAMETER FILE
 
 - dndrfile1
-First dndr(r) [also called p(r) in Breton & de la Torre 2020] file, an ascii file with two row : r, dndr(r)
-dndr(r) is not necessarily normalised. However the limits of r MUST ABSOLUTELY match the one of the survey.
+First dndr(r) [also called p(r) in Breton & de la Torre 2020] file, i.e. an ascii file with two rows: r, dndr(r).
+dndr(r) does not need to be normalized. However, the limits on r MUST ABSOLUTELY match the one of the survey, i.e.
+the first and last rows in this file sets the r_min and r_max of the survey radial selection function.
 
 - dndrfile2
-Second dndr(r) file. For auto-correlation this is the same as -dndrfile1
-The limits in r in dndrfile2 are used as limits for the second random for cross-correlation (for most purposes, it should match the limits in dndrfile1).
+Second dndr(r) file. For RR pairs calculation this should be the same as dndrfile1. The limits on r in dndrfile2
+are used as limits for the random selection in the cross-correlation (e.g. DR) case (for most purposes, it should
+match the limits in dndrfile1).
 
--wformat
-Give the input format of -wfile. Must be 'standard' or 'polspice'. In both cases wfile is an ascii file.
-'standard', two columns: theta, w(theta)  ! theta must be in radians and increasing
-'polspice', three columns: theta, cos(theta), w(theta)  ! Warning, theta must be decreasing (start from pi and end with zero)
+- wformat
+The input format of wfile. Can be 'standard' or 'polspice'. In both cases, wfile is an ASCII file.
+'standard' format -> two columns: theta, w(theta)  ! Warning, theta must be in radians and increasing
+'polspice' format -> three columns: theta, cos(theta), w(theta)  ! Warning, theta must be decreasing (start from pi and end with zero)
 
 - wfile
-The w(theta) file for the angular correlation function of the angular survey weights, with the format given by -wformat
+The w(theta) file for the angular correlation function of the angular survey selection fonction, with format given
+in wformat.
 
 - W0_1
-Average of the survey angular weights over the full sky (accounting for zeros in masked regions)
-In the DR case we need the average of the galaxy counts map.
+Average of the survey angular weights over the full sky (accounting for zeros in masked regions). In the DR case,
+this should be the average of the galaxy counts map.
 
 - W0_2
-Same as W0_1, but for the random part.
+Same as W0_1, but for the randoms. For RR pairs calculation the value should be the same as W0_1.
 
 - W1W2
-This is the average of the W1 x W2 maps. The resul is used to set the angular correlation function at w(0).
+This is the average of the W1 x W2 maps. The result is used to set the angular correlation function of the angular
+selection function. For RR pairs calculation, this should be the average of W1^2, where W1 is the galaxy angular
+selection map.
 
 - smin
-Minimum correlation scale, in Mpc/h
+Minimum correlation function scale, in Mpc/h
 
 - smax
-Maximum correlation scale, in Mpc/h
+Maximum correlation function scale, in Mpc/h
 
 - ns
-Number of radial bins for the correlation function
+Number of s (linear) bins between smin and smax in the anisotropic correlation function
 
 - nmu
-Number of angular bins for the correlation function
-If nmu > 0 : Computes the RR counts for each (s, mu) bins with Eq.(12) of Breton & de la Torre (2020)
-Else : Compute the RR multipoles with Eq.(14)
+Number of mu bins in the anisotropic correlation function
+If nmu > 0: computes the RR pair counts for each (s, mu) bin using Eq.(12) of Breton & de la Torre (2020)
+Else: compute the RR multipole moments using Eq.(14) of Breton & de la Torre (2020)
 
 - angle
-Angle definition, must be "end" for end-point definition, or "mid" for mid-point definition
+Plane-parallel angle definition, must be "end" for end-point definition or "mid" for mid-point definition.
 
 - integration
-Integration type, must be "gsl" for gsl integrations (using cquad), "vegas", "suave", "divonne" or "cuhre" 
-for the associated integration functions from the CUBA library
+Integration type. It must be "gsl" for gsl integrations (using cquad) or "vegas", "suave", "divonne", "cuhre" 
+for the associated integration method in the CUBA library
 
 - eps_rel
-Relative error associated with the integrations above (note that for gsl, this will be the error on each integrals, while for CUBA integration this is the final error on the full integration).
+Relative error associated with the chosen integration method above (note that for gsl, this will be the error
+on each integral, while for CUBA integration methods this is the final error on the full integration).
 
 - output_base
-This is the base for the output name, which is automatically completed with "angle", "integration" and "eps_rel".
+This is the base for the output name. This base is automatically completed with "angle", "integration" and "eps_rel".
 
-## OUTPUT FORMAT
+## OUTPUT ASCII FILE FORMAT
 
-Ascii files, 
-For RR(s,mu) we have with six columns : smin, smax, mu_min, mu_max, RR (mu < 0), RR (mu > 0)
-For RR multipoles we have eleven columns : smin, smax, R_0, R_1, R_2, R_3, R_4, R_5, R_6, R_7, R_8 
-The RR are normalised so that the total number of randoms in the sample is 1 (to compare to the RR from pair-counting one must therefore multiply the RR by N² with N the number of objects in the sample)
+For RR(s,mu), there are six columns: smin, smax, mu_min, mu_max, RR (mu < 0), RR (mu > 0)
+For RR multipole moments, there are eleven columns: smin, smax, R_0, R_1, R_2, R_3, R_4, R_5, R_6, R_7, R_8 
+The RR are normalized so that the total number of random pairs in the sample is 1 (to compare to the RR from pair-counting
+one must therefore multiply the RR by N^2, where N is the number of objects in the random sample)
 
 ## Citation
 
-If you use this code, please cite Breton & de la Torre (2020)
-
+If you use this code, please cite M-A. Breton & S. de la Torre, 2021, Astronomy & Astrophysics, Volume 646, id.A40, 10 pp.
+Preprint available at arXiv:2010.02793.
