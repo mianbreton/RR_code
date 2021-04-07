@@ -54,7 +54,7 @@
 
 // Global variables and functions
 double rmin1, rmax1, rmin2, rmax2, smin, smax, W0_1, W0_2, W1W2, n0, epsrel;
-int ns, nmu, ncomp_mu, ncomp_smu, ncomp_legendre;
+int ns, nmu, ncomp_mu, ncomp_smu, ncomp_legendre, ncomp_poles;
 char dndrfile1[BUFSIZ], dndrfile2[BUFSIZ], wformat[BUFSIZ], wfile[BUFSIZ], angle[BUFSIZ], integration[BUFSIZ], eps_rel[BUFSIZ], output_base[BUFSIZ];
 const size_t size_cquad = 1000; // workspace size for cquad
 const size_t size_qag = 500; // workspace size for qag
@@ -359,15 +359,28 @@ static int Integrand_legendre(const int *ndim, const cubareal xx[], const int *n
         }
         double r2 = r_2(r1p, sp, mup);
 	double factor = (rmax1-rmin1)*(ismax-ismin)*2*r1p*r1p*sp*sp*n1_ir(r1p)*n2_ir(r2)*wtheta_iphi(Phi(r1p, r2, sp));
-        ff[9*i+0] = 0.5*factor;
-        ff[9*i+1] = 1.5*factor*legendre1(mup_star);
-        ff[9*i+2] = 2.5*factor*legendre2(mup_star);
-        ff[9*i+3] = 3.5*factor*legendre3(mup_star);
-        ff[9*i+4] = 4.5*factor*legendre4(mup_star);
-        ff[9*i+5] = 5.5*factor*legendre5(mup_star);
-        ff[9*i+6] = 6.5*factor*legendre6(mup_star);
-        ff[9*i+7] = 7.5*factor*legendre7(mup_star);
-        ff[9*i+8] = 8.5*factor*legendre8(mup_star);
+
+	if (ncomp_poles==3) {
+	  ff[3*i+0] = 0.5*factor;
+	  ff[3*i+1] = 2.5*factor*legendre2(mup_star);
+	  ff[3*i+2] = 4.5*factor*legendre4(mup_star);
+	} else if (ncomp_poles==5) {
+	  ff[5*i+0] = 0.5*factor;
+	  ff[5*i+1] = 2.5*factor*legendre2(mup_star);
+	  ff[5*i+2] = 4.5*factor*legendre4(mup_star);
+	  ff[5*i+3] = 6.5*factor*legendre6(mup_star);
+	  ff[5*i+4] = 8.5*factor*legendre8(mup_star);
+        } else {
+	  ff[9*i+0] = 0.5*factor;
+          ff[9*i+1] = 1.5*factor*legendre1(mup_star);
+          ff[9*i+2] = 2.5*factor*legendre2(mup_star);
+          ff[9*i+3] = 3.5*factor*legendre3(mup_star);
+          ff[9*i+4] = 4.5*factor*legendre4(mup_star);
+          ff[9*i+5] = 5.5*factor*legendre5(mup_star);
+          ff[9*i+6] = 6.5*factor*legendre6(mup_star);
+          ff[9*i+7] = 7.5*factor*legendre7(mup_star);
+          ff[9*i+8] = 8.5*factor*legendre8(mup_star);
+	}
     }
     return 0;
 }
@@ -479,7 +492,7 @@ void RR_cuhre(cubareal* result, double ismin, double ismax)
 	result[i] *= 8*M_PI*M_PI;
 }
 
-// Legendre 
+// Legendre
 void RR_vegas_legendre(cubareal* result)
 {
     int_vegas(ncomp_legendre, result, Integrand_legendre, NULL);
@@ -687,21 +700,26 @@ void get_param(FILE* par)
     fscanf(par,"%*s %s\n", output_base);
 
     epsrel = (double)strtod(eps_rel,NULL);
-    ncomp_mu = nmu*2; // times 2 because of positive and negative mu
-    ncomp_smu = ns*ncomp_mu;
-    ncomp_legendre = ns*9; // Compute 9 multipoles
 
-    if (nmu>0 && ncomp_smu>1024) {
-      printf("Error! CUBA maximum internal parallelization reached. Reduce the number of bins to be computed.\n");
-      exit(1);
-    }
+    if (nmu>0) {
+      if (ncomp_smu>1024) {
+	printf("Error! CUBA maximum internal parallelization reached. Reduce the number of bins to be computed.\n");
+	exit(1);
+      }
+      ncomp_mu = nmu*2; // times 2 because of positive and negative mu                                                                                                               
+      ncomp_smu = ns*ncomp_mu;
+    } else {
+      ncomp_poles = abs(nmu);
+      if (ncomp_poles!=3 && ncomp_poles!=5) ncomp_poles=9;
+      ncomp_legendre = ns*ncomp_poles;
 
-    if (nmu<=0 && ncomp_legendre>1024) {
-      printf("Error! CUBA maximum internal parallelization reached. Reduce the number of bins to be computed.\n");
-      exit(1);
+      if (ncomp_legendre>1024) {
+        printf("Error! CUBA maximum internal parallelization reached. Reduce the number of bins to be computed.\n");
+        exit(1);
+      }
     }
     
-    printf("smin, smax = %f - %f with %d bins, and %d bins in mu\n", smin, smax, ns, nmu);
+    printf("smin, smax = %f - %f with %d bins, and %d %s\n", smin, smax, ns, nmu>0?nmu:ncomp_poles,nmu>0?"bins in mu":"multipoles");
     printf("Angle definition : %s-point\n", angle);
     printf("Integration : %s, with a relative precision of %s\n", integration, eps_rel);
 }
@@ -737,15 +755,13 @@ int main(int argc, char *argv[])
     // Open file to write
     FILE *f; 
     char output[BUFSIZ];
-    if (nmu > 0) {
-        sprintf(output,"%s_%s_%s_%s.txt", output_base, angle, integration, eps_rel);
-    } else{
-        sprintf(output,"%s_%s_%s_%s_legendre.txt", output_base, angle, integration, eps_rel);
-    }
+    
+    if (nmu>0) sprintf(output,"%s_%s_%s_%s.txt", output_base, angle, integration, eps_rel);
+    else sprintf(output,"%s_%s_%s_%s_legendre.txt", output_base, angle, integration, eps_rel);
     f = fopen(output, "w+");
     
     // Compute RR and write output
-    if(nmu > 0){
+    if (nmu>0) {
 	double result[ncomp_smu];
 	double result_tmp[ncomp_mu];
     	for (int i = 0.; i < ns; i++){
@@ -798,7 +814,7 @@ int main(int argc, char *argv[])
 	    }
 	}
 	// Finalize
-    	for (int k = 0.; k < ns*nmu; k++) {
+    	for (int k = 0; k < ncomp_smu; k++) {
 	    int i = k/nmu;
 	    int j = k%nmu;
 	    double ismin = smin + i*ds;
@@ -822,14 +838,17 @@ int main(int argc, char *argv[])
 	} else {
 	    printf("In parameter file, integration needs: gsl, vegas, suave, divonne or cuhre.\n");
 	}
+	
 	// Finalize
-    	for (int i = 0.; i < ns; i++) {
-	    double ismin = smin + i*ds;
-	    fprintf(f, "%.13le %.13le %.13le %.13le %.13le %.13le %.13le %.13le %.13le %.13le %.13le\n", ismin, ismin+ds, ff*result[9*i], ff*result[9*i+1], ff*result[9*i+2], ff*result[9*i+3], ff*result[9*i+4], ff*result[9*i+5], ff*result[9*i+6], ff*result[9*i+7], ff*result[9*i+8]);
+    	for (int i = 0; i < ns; i++) {
+	  double ismin = smin + i*ds;
+	  fprintf(f, "%.13le %.13le ", ismin, ismin+ds);
+	  for (int j = 0; j < ncomp_poles; j++) fprintf(f, "%.13le ", ff*result[ncomp_poles*i+j]);
+	  fprintf(f, "\n");
 	}
     }
     printf("\n");
-    printf("Run completed !\n");
+    printf("Run completed!\n");
     
     return 0;
 }
