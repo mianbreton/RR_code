@@ -1,3 +1,6 @@
+This C code allows computing analytically RR pairs counts for galaxy clustering, following the method presented in
+Breton & de la Torre (2021).
+
 ## COMPILATION
 
 First, need to set the path to GSL and CUBA libraries in the Makefile. Then run:
@@ -52,7 +55,7 @@ Number of bins in s between smin and smax in the anisotropic correlation functio
 
 - nmu
 Number of bins in mu in the anisotropic correlation function. If nmu>0, RR pair counts are computed in each (s, mu)
-bin using Eq.(12) of Breton & de la Torre (2020), else RR multipole moments are computed using Eq.(14). When nmu<=0,
+bin using Eq.(12) of Breton & de la Torre (2021), else RR multipole moments are computed using Eq.(14). When nmu<=0,
 the associated absolute value gives the number of multipole moments to be computed. There are 3 possibilities:
 nmu=-3 computes l=0,2,4 multipoles, nmu=-5 computes l=0,2,4,6,8 multipoles, and any other value <=0 computes
 l=0,1,2,3,4,5,6,7,8 multipoles.
