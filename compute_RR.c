@@ -54,7 +54,7 @@
 
 // Global variables and functions
 double rmin1, rmax1, rmin2, rmax2, smin, smax, W0_1, W0_2, W1W2, n0, epsrel;
-int ns, nmu, ncomp_mu, ncomp_legendre;
+int ns, nmu, ncomp_mu, ncomp_smu, ncomp_legendre;
 char dndrfile1[BUFSIZ], dndrfile2[BUFSIZ], wformat[BUFSIZ], wfile[BUFSIZ], angle[BUFSIZ], integration[BUFSIZ], eps_rel[BUFSIZ], output_base[BUFSIZ];
 const size_t size_cquad = 1000; // workspace size for cquad
 const size_t size_qag = 500; // workspace size for qag
@@ -688,8 +688,19 @@ void get_param(FILE* par)
 
     epsrel = (double)strtod(eps_rel,NULL);
     ncomp_mu = nmu*2; // times 2 because of positive and negative mu
+    ncomp_smu = ns*ncomp_mu;
     ncomp_legendre = ns*9; // Compute 9 multipoles
 
+    if (nmu>0 && ncomp_smu>1024) {
+      printf("Error! CUBA maximum internal parallelization reached. Reduce the number of bins to be computed.\n");
+      exit(1);
+    }
+
+    if (nmu<=0 && ncomp_legendre>1024) {
+      printf("Error! CUBA maximum internal parallelization reached. Reduce the number of bins to be computed.\n");
+      exit(1);
+    }
+    
     printf("smin, smax = %f - %f with %d bins, and %d bins in mu\n", smin, smax, ns, nmu);
     printf("Angle definition : %s-point\n", angle);
     printf("Integration : %s, with a relative precision of %s\n", integration, eps_rel);
@@ -735,7 +746,7 @@ int main(int argc, char *argv[])
     
     // Compute RR and write output
     if(nmu > 0){
-	double result[ns*nmu*2];
+	double result[ncomp_smu];
 	double result_tmp[ncomp_mu];
     	for (int i = 0.; i < ns; i++){
 	    double ismin = smin + i*ds;
