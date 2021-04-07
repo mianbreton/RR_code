@@ -73,11 +73,11 @@ This is the base for the output name. This base is automatically completed with 
 ## OUTPUT ASCII FILE FORMAT
 
 For RR(s,mu), there are six columns: smin, smax, mu_min, mu_max, RR (mu < 0), RR (mu > 0)
-For RR multipole moments, there are eleven columns: smin, smax, R_0, R_1, R_2, R_3, R_4, R_5, R_6, R_7, R_8 
-The RR are normalized so that the total number of random pairs in the sample is 1 (to compare to the RR from pair-counting
-one must therefore multiply the RR by N^2, where N is the number of objects in the random sample)
+For RR multipole moments, there are up to eleven columns: smin, smax, R_0, R_1, R_2, R_3, R_4, R_5, R_6, R_7, R_8 (or 
+less R_i if the number of multipoles to be computed is smaller). RR are normalized so that the total number of random 
+pairs in the sample is 1 (to compare to the RR from pair-counting one must therefore multiply the RR by N^2, where N 
+is the number of objects in the random sample).
 
-## Citation
+## CITATION
 
-If you use this code, please cite M-A. Breton & S. de la Torre, 2021, Astronomy & Astrophysics, Volume 646, id.A40, 10 pp.
-Preprint available at arXiv:2010.02793.
+If you use this code, please cite M-A. Breton & S. de la Torre, 2021, Astronomy & Astrophysics, Volume 646, A40. Preprint available at arXiv:2010.02793.
