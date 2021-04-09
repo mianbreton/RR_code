@@ -13,7 +13,7 @@ First, need to set the path to GSL and CUBA libraries in the Makefile. Then run:
 ## PARAMETER FILE
 
 - dndrfile1
-First dndr(r) [also called p(r) in Breton & de la Torre 2020] file, i.e. an ASCII file with two rows: r, dndr(r).
+First dndr(r) (also called p(r) in Breton & de la Torre, 2021) file, i.e. an ASCII file with two rows: r, dndr(r).
 dndr(r) does not need to be normalized. However, the limits on r MUST ABSOLUTELY match the one of the survey, i.e.
 the first and last rows in this file sets the r_min and r_max of the survey radial selection function.
 
@@ -77,8 +77,8 @@ Base path for the output file name. This base is automatically completed with "a
 ## OUTPUT ASCII FILE FORMAT
 
 For RR(s,mu) there are six columns: smin, smax, mu_min, mu_max, RR (mu < 0), RR (mu > 0)
-For RR multipole moments, there are up to eleven columns: smin, smax, R_0, R_1, R_2, R_3, R_4, R_5, R_6, R_7, R_8 (or 
-less R_i if the number of multipoles to be computed is smaller). RR are normalized so that the total number of random 
+For RR multipole moments, there are up to eleven columns: smin, smax, RR_0, RR_1, RR_2, RR_3, RR_4, RR_5, RR_6, RR_7, RR_8 (or 
+less RR_i if the number of multipoles to be computed is smaller). RR are normalized so that the total number of random 
 pairs in the sample is 1 (to compare to RR obtained from pair counting one must multiply the RR by N^2, where N 
 is the number of objects in the random sample).
 
